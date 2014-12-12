@@ -3,6 +3,11 @@ import sys
 import threading
 import logging
 
+LOG_FILENAME = 'logging_example.out'
+logging.basicConfig(filename=LOG_FILENAME,
+                    level=logging.DEBUG,
+                    )
+
 from _fsevents import (
     loop,
     stop,
