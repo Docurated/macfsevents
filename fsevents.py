@@ -1,12 +1,6 @@
 import os
 import sys
 import threading
-import logging
-
-LOG_FILENAME = 'logging_example.out'
-logging.basicConfig(filename=LOG_FILENAME,
-                    level=logging.DEBUG,
-                    )
 
 from _fsevents import (
     loop,
@@ -39,7 +33,6 @@ IN_MOVED_FROM = 0x00000040
 IN_MOVED_TO = 0x00000080
 
 def check_path_string_type(*paths):
-    logging.debug("CHCEKC PATH STRING TYPE")
     for path in paths:
         if not isinstance(path, str):
             raise TypeError(
@@ -51,7 +44,6 @@ class Observer(threading.Thread):
     runloop = None
 
     def __init__(self):
-        logging.debug("Creating an observer")
         self.streams = set()
         self.schedulings = {}
         self.lock = threading.Lock()
@@ -71,7 +63,6 @@ class Observer(threading.Thread):
         try:
             # schedule all streams
             for stream in self.streams:
-                logging.debug("ADDING THE STREM {0}".format(stream))
                 self._schedule(stream)
 
             self.streams = None
@@ -128,10 +119,8 @@ class Observer(threading.Thread):
 
 class Stream(object):
     def __init__(self, callback, *paths, **options):
-        logging.debug("Createing a STREAM OBJECT")
         file_events = options.pop('file_events', False)
         assert len(options) == 0, "Invalid option(s): %s" % repr(options.keys())
-        logging.debug("CHECKING the path types now")
         check_path_string_type(*paths)
 
         self.callback = callback
@@ -166,7 +155,6 @@ class FileEventCallback(object):
         self.cookie = 0
 
     def __call__(self, paths, masks):
-        logging.debug("IN THE CALLL METHOD")
         events = []
         deleted = {}
         created = {}
@@ -176,8 +164,6 @@ class FileEventCallback(object):
                 path = path.decode('utf-8')
                 
             path = path.rstrip('/').lower()
-            logging.debug("snapshoes = {0}".format(self.snapshots))
-            logging.debug("hcekcing for path {0}".format(path))
             snapshot = self.snapshots[path]
             current = {}
             try:
@@ -190,11 +176,9 @@ class FileEventCallback(object):
                 # recursive delete causes problems with path being non-existent
                 pass
             observed = set(current)
-            logging.debug("observed is now {0}".format(observed))
 
             for name, snap_stat in snapshot.items():
                 filename = os.path.join(path, name)
-                logging.debug("CHECKING if {0} is in {1}".format(name, observed))
                 if name in observed:
                     stat = current[name]
                     if stat.st_mtime > snap_stat.st_mtime:
@@ -241,7 +225,6 @@ class FileEventCallback(object):
             self.callback(event)
 
     def snapshot(self, path):
-        logging.debug("called snapshot with {0}".format(path))
         path = os.path.realpath(path)
         refs = self.snapshots
 
@@ -250,7 +233,6 @@ class FileEventCallback(object):
             entry = refs[root.lower()]
             for obj in files + dirs:
                 try:
-                    logging.debug("adding entry {0}".format(obj))
                     entry[obj.lower()] = os.lstat(os.path.join(root, obj))
                 except OSError:
                     continue
