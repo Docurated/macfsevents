@@ -39,6 +39,7 @@ IN_MOVED_FROM = 0x00000040
 IN_MOVED_TO = 0x00000080
 
 def check_path_string_type(*paths):
+    logging.debug("CHCEKC PATH STRING TYPE")
     for path in paths:
         if not isinstance(path, str):
             raise TypeError(
@@ -50,6 +51,7 @@ class Observer(threading.Thread):
     runloop = None
 
     def __init__(self):
+        logging.debug("Creating an observer")
         self.streams = set()
         self.schedulings = {}
         self.lock = threading.Lock()
@@ -126,6 +128,7 @@ class Observer(threading.Thread):
 
 class Stream(object):
     def __init__(self, callback, *paths, **options):
+        logging.debug("Createing a STREAM OBJECT")
         file_events = options.pop('file_events', False)
         assert len(options) == 0, "Invalid option(s): %s" % repr(options.keys())
         logging.debug("CHECKING the path types now")
@@ -163,6 +166,7 @@ class FileEventCallback(object):
         self.cookie = 0
 
     def __call__(self, paths, masks):
+        logging.debug("IN THE CALLL METHOD")
         events = []
         deleted = {}
         created = {}
