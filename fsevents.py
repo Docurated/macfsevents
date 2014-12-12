@@ -1,6 +1,7 @@
 import os
 import sys
 import threading
+import logging
 
 from _fsevents import (
     loop,
@@ -63,6 +64,7 @@ class Observer(threading.Thread):
         try:
             # schedule all streams
             for stream in self.streams:
+                logging.debug("ADDING THE STREM {0}".format(stream))
                 self._schedule(stream)
 
             self.streams = None
@@ -121,6 +123,7 @@ class Stream(object):
     def __init__(self, callback, *paths, **options):
         file_events = options.pop('file_events', False)
         assert len(options) == 0, "Invalid option(s): %s" % repr(options.keys())
+        logging.debug("CHECKING the path types now")
         check_path_string_type(*paths)
 
         self.callback = callback
@@ -179,7 +182,7 @@ class FileEventCallback(object):
 
             for name, snap_stat in snapshot.items():
                 filename = os.path.join(path, name)
-                print "CHECKING if {0} is in {1}".format(name, observed)
+                logging.debug("CHECKING if {0} is in {1}".format(name, observed))
                 if name in observed:
                     stat = current[name]
                     if stat.st_mtime > snap_stat.st_mtime:
