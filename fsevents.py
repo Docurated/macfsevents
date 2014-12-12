@@ -175,19 +175,22 @@ class FileEventCallback(object):
             if sys.version_info[0] >= 3:
                 path = path.decode('utf-8')
                 
-            path = path.rstrip('/')
+            path = path.rstrip('/').lower()
+            logging.debug("snapshoes = {0}".format(self.snapshots))
+            logging.debug("hcekcing for path {0}".format(path))
             snapshot = self.snapshots[path]
             current = {}
             try:
                 for name in os.listdir(path):
                     try:
-                        current[name] = os.lstat(os.path.join(path, name))
+                        current[name.lower()] = os.lstat(os.path.join(path, name))
                     except OSError:
                         pass
             except OSError:
                 # recursive delete causes problems with path being non-existent
                 pass
             observed = set(current)
+            logging.debug("observed is now {0}".format(observed))
 
             for name, snap_stat in snapshot.items():
                 filename = os.path.join(path, name)
@@ -238,14 +241,16 @@ class FileEventCallback(object):
             self.callback(event)
 
     def snapshot(self, path):
+        logging.debug("called snapshot with {0}".format(path))
         path = os.path.realpath(path)
         refs = self.snapshots
 
         for root, dirs, files in os.walk(path):
-            refs[root] = {}
-            entry = refs[root]
+            refs[root.lower()] = {}
+            entry = refs[root.lower()]
             for obj in files + dirs:
                 try:
-                    entry[obj] = os.lstat(os.path.join(root, obj))
+                    logging.debug("adding entry {0}".format(obj))
+                    entry[obj.lower()] = os.lstat(os.path.join(root, obj))
                 except OSError:
                     continue
