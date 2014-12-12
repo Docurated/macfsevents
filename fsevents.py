@@ -179,6 +179,7 @@ class FileEventCallback(object):
 
             for name, snap_stat in snapshot.items():
                 filename = os.path.join(path, name)
+                print "CHECKING if {0} is in {1}".format(name, observed)
                 if name in observed:
                     stat = current[name]
                     if stat.st_mtime > snap_stat.st_mtime:
